@@ -6,12 +6,6 @@ import type { AuthenticatedInvite } from "../auth/authMiddleware";
 import type { AppDatabase } from "../db/database";
 import { ApiError } from "../invites/inviteService";
 
-interface SessionRow {
-  id: string;
-  mode: string;
-  ai_response_json: string;
-}
-
 const MAX_FEYNMAN_ROUNDS = 3;
 
 function parseMasteryContent(json: string): MasteryContent {
@@ -35,13 +29,7 @@ export async function submitFeynmanFeedback(
   invite: AuthenticatedInvite,
   request: FeynmanFeedbackRequest
 ): Promise<FeynmanFeedbackResponse> {
-  const session = db
-    .prepare(`
-      select id, mode, ai_response_json
-      from learning_sessions
-      where id = ? and invite_code_id = ?
-    `)
-    .get(request.session_id.trim(), invite.id) as SessionRow | undefined;
+  const session = await db.findLearningSession(request.session_id.trim(), invite.id);
 
   if (!session) {
     throw new ApiError("SESSION_NOT_FOUND", 404, "没有找到这次学习记录。");
@@ -50,10 +38,8 @@ export async function submitFeynmanFeedback(
     throw new ApiError("SESSION_NOT_FOUND", 400, "只有深度理解模式支持费曼反馈。");
   }
 
-  const existing = db
-    .prepare("select count(*) as count from feynman_feedbacks where learning_session_id = ?")
-    .get(session.id) as { count: number };
-  if (existing.count >= MAX_FEYNMAN_ROUNDS) {
+  const existingFeedbackCount = await db.countFeynmanFeedbacks(session.id);
+  if (existingFeedbackCount >= MAX_FEYNMAN_ROUNDS) {
     throw new ApiError("FEEDBACK_ALREADY_SUBMITTED", 409, "这次学习最多支持三轮费曼反馈。");
   }
 
@@ -78,10 +64,12 @@ export async function submitFeynmanFeedback(
     throw new ApiError(validation.code, 502, validation.message);
   }
 
-  db.prepare(`
-    insert into feynman_feedbacks (id, learning_session_id, user_explanation, ai_feedback_json)
-    values (?, ?, ?, ?)
-  `).run(randomUUID(), session.id, request.user_explanation.trim(), JSON.stringify(feedback));
+  await db.insertFeynmanFeedback({
+    id: randomUUID(),
+    learningSessionId: session.id,
+    userExplanation: request.user_explanation.trim(),
+    aiFeedbackJson: JSON.stringify(feedback)
+  });
 
   return { feedback };
 }

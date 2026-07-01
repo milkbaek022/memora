@@ -15,7 +15,10 @@ declare module "fastify" {
   }
 }
 
-export function authenticateRequest(db: AppDatabase, request: FastifyRequest): AuthenticatedInvite {
+export async function authenticateRequest(
+  db: AppDatabase,
+  request: FastifyRequest
+): Promise<AuthenticatedInvite> {
   const header = request.headers.authorization;
   if (!header?.startsWith("Bearer ")) {
     throw new ApiError("UNAUTHORIZED", 401, "请先输入邀请码。");
@@ -23,11 +26,7 @@ export function authenticateRequest(db: AppDatabase, request: FastifyRequest): A
 
   const token = header.slice("Bearer ".length).trim();
   const tokenHash = hashAccessToken(token);
-  const row = db.prepare(`
-    select id, code, remaining_credits
-    from invite_codes
-    where access_token_hash = ? and is_active = 1
-  `).get(tokenHash) as AuthenticatedInvite | undefined;
+  const row = await db.findInviteByTokenHash(tokenHash);
 
   if (!row) {
     throw new ApiError("UNAUTHORIZED", 401, "登录状态已失效，请重新输入邀请码。");

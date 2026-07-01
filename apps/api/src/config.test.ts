@@ -24,4 +24,12 @@ describe("loadConfig", () => {
       "SHUWEI-MAIN"
     );
   });
+
+  it("uses DATABASE_URL when deploying with Neon on Vercel", () => {
+    expect(
+      loadConfig({
+        DATABASE_URL: "postgresql://user:pass@example.neon.tech/memora?sslmode=require"
+      }).databaseUrl
+    ).toBe("postgresql://user:pass@example.neon.tech/memora?sslmode=require");
+  });
 });

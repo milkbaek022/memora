@@ -93,12 +93,13 @@ http://localhost:8787
 The backend owns model credentials. Set these environment variables on the backend host:
 
 ```bash
-AI_PROVIDER=openai
-DATABASE_PATH=data/ai-learning.sqlite
+DATABASE_URL=postgresql://user:password@host.neon.tech/memora?sslmode=require
+AI_PROVIDER=deepseek
+DEEPSEEK_API_KEY=your-secret-key
+DEEPSEEK_MODEL=deepseek-chat
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+MEMORA_MAIN_INVITE_CODE=your-private-main-code
 ```
-
-Add `OPENAI_API_KEY` and `OPENAI_MODEL` as secret values in the hosting provider's environment
-settings. `OPENAI_MODEL` must be a Responses API model that supports structured JSON Schema output.
 
 The extension never stores AI provider credentials.
 

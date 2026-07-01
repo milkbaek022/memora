@@ -2,7 +2,7 @@ import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadConfig } from "../config";
-import { createDatabase } from "../db/database";
+import { createAppDatabase } from "../db/appDatabase";
 import { DEFAULT_INVITE_CREDITS, migrateDatabase, seedInviteCode } from "../db/schema";
 
 export interface SeedInviteResult {
@@ -23,7 +23,9 @@ function inviteCreditsFromEnv(value: string | undefined): number {
   return credits;
 }
 
-export function seedInviteFromEnv(env: NodeJS.ProcessEnv = process.env): SeedInviteResult {
+export async function seedInviteFromEnv(
+  env: NodeJS.ProcessEnv = process.env
+): Promise<SeedInviteResult> {
   const code = env.INVITE_CODE?.trim();
   if (!code) {
     throw new Error("Set INVITE_CODE before running seed:invite.");
@@ -31,14 +33,16 @@ export function seedInviteFromEnv(env: NodeJS.ProcessEnv = process.env): SeedInv
 
   const config = loadConfig(env);
   const credits = inviteCreditsFromEnv(env.INVITE_CREDITS);
-  mkdirSync(dirname(config.databasePath), { recursive: true });
+  if (!config.databaseUrl) {
+    mkdirSync(dirname(config.databasePath), { recursive: true });
+  }
 
-  const db = createDatabase(config.databasePath);
+  const db = await createAppDatabase(config);
   try {
-    migrateDatabase(db);
-    seedInviteCode(db, code, credits);
+    await migrateDatabase(db);
+    await seedInviteCode(db, code, credits);
   } finally {
-    db.close();
+    await db.close();
   }
 
   return {
@@ -51,7 +55,7 @@ export function seedInviteFromEnv(env: NodeJS.ProcessEnv = process.env): SeedInv
 const executedPath = process.argv[1] ? fileURLToPath(import.meta.url) : "";
 
 if (process.argv[1] === executedPath) {
-  const result = seedInviteFromEnv();
+  const result = await seedInviteFromEnv();
   console.log(
     `Seeded invite ${result.code} with ${result.credits} memory potions in ${result.databasePath}.`
   );

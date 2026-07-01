@@ -21,10 +21,10 @@ function tempDatabasePath(): string {
 }
 
 describe("seedInviteFromEnv", () => {
-  it("creates a regular invite code with 20 potions by default", () => {
+  it("creates a regular invite code with 20 potions by default", async () => {
     const databasePath = tempDatabasePath();
 
-    const result = seedInviteFromEnv({
+    const result = await seedInviteFromEnv({
       DATABASE_PATH: databasePath,
       INVITE_CODE: "BETA-ONLINE"
     });
@@ -50,11 +50,11 @@ describe("seedInviteFromEnv", () => {
     });
   });
 
-  it("requires INVITE_CODE so production shells do not seed blank invites", () => {
-    expect(() =>
+  it("requires INVITE_CODE so production shells do not seed blank invites", async () => {
+    await expect(
       seedInviteFromEnv({
         DATABASE_PATH: tempDatabasePath()
       })
-    ).toThrow("Set INVITE_CODE before running seed:invite.");
+    ).rejects.toThrow("Set INVITE_CODE before running seed:invite.");
   });
 });

@@ -8,16 +8,9 @@ export class ApiError extends Error {
   }
 }
 
-interface InviteRow {
-  id: number;
-  code: string;
-  remaining_credits: number;
-  is_active: number;
-}
-
-export function activateInvite(db: AppDatabase, code: string): ActivateInviteResponse {
+export async function activateInvite(db: AppDatabase, code: string): Promise<ActivateInviteResponse> {
   const normalizedCode = code.trim();
-  const row = db.prepare("select id, code, remaining_credits, is_active from invite_codes where code = ?").get(normalizedCode) as InviteRow | undefined;
+  const row = await db.findInviteByCode(normalizedCode);
 
   if (!row) {
     throw new ApiError("INVALID_INVITE", 401, "邀请码不存在。");
@@ -28,11 +21,7 @@ export function activateInvite(db: AppDatabase, code: string): ActivateInviteRes
 
   const token = createAccessToken();
   const tokenHash = hashAccessToken(token);
-  db.prepare(`
-    update invite_codes
-    set access_token_hash = ?, activated_at = coalesce(activated_at, datetime('now')), last_used_at = datetime('now')
-    where id = ?
-  `).run(tokenHash, row.id);
+  await db.activateInvite(row.id, tokenHash);
 
   return {
     token,

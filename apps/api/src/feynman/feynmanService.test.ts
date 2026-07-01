@@ -3,7 +3,7 @@ import type { FeynmanFeedback } from "@memora/shared";
 import type { AiProvider, FeynmanGenerationInput } from "../ai/provider";
 import { MockAiProvider } from "../ai/mockProvider";
 import { createDatabase } from "../db/database";
-import type { AppDatabase } from "../db/database";
+import type { SqliteDatabase } from "../db/database";
 import { migrateDatabase, seedInviteCode } from "../db/schema";
 import { activateInvite, ApiError } from "../invites/inviteService";
 import { generateLearning } from "../learning/learningService";
@@ -18,7 +18,7 @@ const feedback: FeynmanFeedback = {
   next_question: "如果用户说想要一个按钮，你会怎么判断他真正想完成什么？"
 };
 
-function inviteRow(db: AppDatabase, code: string) {
+function inviteRow(db: SqliteDatabase, code: string) {
   return db
     .prepare("select id, code, remaining_credits from invite_codes where code = ?")
     .get(code) as { id: number; code: string; remaining_credits: number };
@@ -39,7 +39,7 @@ async function setupSession(mode: "quick" | "deep" | "mastery" = "mastery") {
   const db = createDatabase(":memory:");
   migrateDatabase(db);
   seedInviteCode(db, "BETA-FEYNMAN", 5);
-  activateInvite(db, "BETA-FEYNMAN");
+  await activateInvite(db, "BETA-FEYNMAN");
   const invite = inviteRow(db, "BETA-FEYNMAN");
   const session = await generateLearning(db, new MockAiProvider(), invite, {
     selected_text: "demand mining",
@@ -131,7 +131,7 @@ describe("submitFeynmanFeedback", () => {
   it("rejects sessions owned by another invite", async () => {
     const { db, session } = await setupSession();
     seedInviteCode(db, "BETA-OTHER", 5);
-    activateInvite(db, "BETA-OTHER");
+    await activateInvite(db, "BETA-OTHER");
     const otherInvite = inviteRow(db, "BETA-OTHER");
 
     await expect(

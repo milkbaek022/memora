@@ -25,11 +25,12 @@ export async function generateLearning(
     throw new ApiError(selectionValidation.code, 400, selectionValidation.message);
   }
 
-  const quotaRow = db
-    .prepare("select remaining_credits from invite_codes where id = ?")
-    .get(invite.id) as { remaining_credits: number } | undefined;
-  const isUnlimited = quotaRow?.remaining_credits === UNLIMITED_INVITE_CREDITS;
-  if (!quotaRow || (!isUnlimited && quotaRow.remaining_credits <= 0)) {
+  const remainingCreditQuota = await db.getInviteCredits(invite.id);
+  const isUnlimited = remainingCreditQuota === UNLIMITED_INVITE_CREDITS;
+  if (
+    remainingCreditQuota === undefined ||
+    (!isUnlimited && remainingCreditQuota <= 0)
+  ) {
     throw new ApiError("NO_QUOTA", 402, "记忆药水已用完。");
   }
 
@@ -59,51 +60,20 @@ export async function generateLearning(
   }
 
   const sessionId = randomUUID();
-  const remainingCredits = db.transaction(() => {
-    let creditDeducted = 0;
-
-    if (isUnlimited) {
-      db.prepare("update invite_codes set last_used_at = datetime('now') where id = ?").run(
-        invite.id
-      );
-    } else {
-      const updated = db
-        .prepare(`
-          update invite_codes
-          set remaining_credits = remaining_credits - 1, last_used_at = datetime('now')
-          where id = ? and remaining_credits > 0
-        `)
-        .run(invite.id);
-
-      if (updated.changes !== 1) {
-        throw new ApiError("NO_QUOTA", 402, "记忆药水已用完。");
-      }
-      creditDeducted = 1;
-    }
-
-    db.prepare(`
-      insert into learning_sessions (
-        id, invite_code_id, selected_text, paragraph_context, page_title, page_url,
-        mode, ai_response_json, credit_deducted, error_code
-      )
-      values (?, ?, ?, ?, ?, ?, ?, ?, ?, null)
-    `).run(
+  const remainingCredits = await db.recordLearning({
       sessionId,
-      invite.id,
-      request.selected_text.trim(),
-      request.paragraph_context.trim(),
-      request.page_title.trim(),
-      request.page_url.trim(),
-      request.mode,
-      JSON.stringify(content),
-      creditDeducted
-    );
-
-    const row = db
-      .prepare("select remaining_credits from invite_codes where id = ?")
-      .get(invite.id) as { remaining_credits: number };
-    return row.remaining_credits;
-  })();
+      inviteId: invite.id,
+      selectedText: request.selected_text.trim(),
+      paragraphContext: request.paragraph_context.trim(),
+      pageTitle: request.page_title.trim(),
+      pageUrl: request.page_url.trim(),
+      mode: request.mode,
+      aiResponseJson: JSON.stringify(content),
+      isUnlimited
+    });
+  if (remainingCredits === undefined) {
+    throw new ApiError("NO_QUOTA", 402, "记忆药水已用完。");
+  }
 
   return {
     session_id: sessionId,

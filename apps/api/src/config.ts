@@ -1,6 +1,7 @@
 export interface AppConfig {
   port: number;
   databasePath: string;
+  databaseUrl: string;
   mainInviteCode: string;
   aiProvider: "mock" | "openai" | "deepseek";
   openAiApiKey: string;
@@ -18,6 +19,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
   return {
     port: Number(env.PORT ?? "8787"),
     databasePath: env.DATABASE_PATH ?? "data/ai-learning.sqlite",
+    databaseUrl: env.DATABASE_URL ?? "",
     mainInviteCode: env.MEMORA_MAIN_INVITE_CODE ?? "MEMORA-MAIN",
     aiProvider: aiProviderFromEnv(env.AI_PROVIDER),
     openAiApiKey: env.OPENAI_API_KEY ?? "",

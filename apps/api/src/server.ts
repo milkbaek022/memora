@@ -88,11 +88,11 @@ export function buildServer({ db, aiProvider = new MockAiProvider() }: ServerDep
   });
 
   app.post("/api/invite/activate", async (request) => {
-    return activateInvite(db, inviteCodeFromBody(request.body));
+    return await activateInvite(db, inviteCodeFromBody(request.body));
   });
 
   app.get("/api/me", async (request) => {
-    const invite = authenticateRequest(db, request);
+    const invite = await authenticateRequest(db, request);
     return {
       code: invite.code,
       remaining_credits: invite.remaining_credits
@@ -100,12 +100,12 @@ export function buildServer({ db, aiProvider = new MockAiProvider() }: ServerDep
   });
 
   app.post("/api/learn", async (request) => {
-    const invite = authenticateRequest(db, request);
+    const invite = await authenticateRequest(db, request);
     return generateLearning(db, aiProvider, invite, learnRequestFromBody(request.body));
   });
 
   app.post("/api/feynman-feedback", async (request) => {
-    const invite = authenticateRequest(db, request);
+    const invite = await authenticateRequest(db, request);
     return submitFeynmanFeedback(
       db,
       aiProvider,
