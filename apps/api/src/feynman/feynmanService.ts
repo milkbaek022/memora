@@ -1,5 +1,10 @@
 import { randomUUID } from "node:crypto";
-import type { FeynmanFeedbackRequest, FeynmanFeedbackResponse, MasteryContent } from "@memora/shared";
+import type {
+  FeynmanFeedbackRequest,
+  FeynmanFeedbackResponse,
+  MasteryContent,
+  ValidationResult
+} from "@memora/shared";
 import { validateFeynmanFeedback, validateLearningContent } from "@memora/shared";
 import type { AiProvider } from "../ai/provider";
 import type { AuthenticatedInvite } from "../auth/authMiddleware";
@@ -16,8 +21,8 @@ function parseMasteryContent(json: string): MasteryContent {
     throw new ApiError("MALFORMED_AI_RESPONSE", 502, "AI 返回格式不正确。");
   }
 
-  const validation = validateLearningContent("mastery", parsed);
-  if (!validation.ok) {
+  const validation: ValidationResult = validateLearningContent("mastery", parsed);
+  if (validation.ok === false) {
     throw new ApiError(validation.code, 502, validation.message);
   }
   return parsed as MasteryContent;
@@ -59,8 +64,8 @@ export async function submitFeynmanFeedback(
     throw new ApiError("AI_FAILURE", 502, "AI 反馈生成失败，请稍后重试。");
   }
 
-  const validation = validateFeynmanFeedback(feedback);
-  if (!validation.ok) {
+  const validation: ValidationResult = validateFeynmanFeedback(feedback);
+  if (validation.ok === false) {
     throw new ApiError(validation.code, 502, validation.message);
   }
 
