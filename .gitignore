@@ -1,0 +1,12 @@
+.DS_Store
+.superpowers/
+.npm-cache/
+node_modules/
+dist/
+test-results/
+playwright-report/
+data/
+apps/api/data/
+*.tsbuildinfo
+*.zip
+参考素材/
