@@ -1,4 +1,4 @@
-import type { FeynmanFeedback, LearningContent } from "@memora/shared";
+import type { FeynmanFeedback, LearningContent, ValidationResult } from "@memora/shared";
 import { validateFeynmanFeedback, validateLearningContent } from "@memora/shared";
 import { ApiError } from "../invites/inviteService";
 import { buildFeynmanPrompt, buildLearningPrompt } from "./prompts";
@@ -56,8 +56,8 @@ export class OpenAiResponsesProvider implements AiProvider {
       "learning_content",
       jsonSchemaForMode(input.mode)
     );
-    const validation = validateLearningContent(input.mode, parsed);
-    if (!validation.ok) throw new ApiError(validation.code, 502, validation.message);
+    const validation: ValidationResult = validateLearningContent(input.mode, parsed);
+    if (validation.ok === false) throw new ApiError(validation.code, 502, validation.message);
     return parsed as LearningContent;
   }
 
@@ -67,8 +67,8 @@ export class OpenAiResponsesProvider implements AiProvider {
       "feynman_feedback",
       feedbackSchema
     );
-    const validation = validateFeynmanFeedback(parsed);
-    if (!validation.ok) throw new ApiError(validation.code, 502, validation.message);
+    const validation: ValidationResult = validateFeynmanFeedback(parsed);
+    if (validation.ok === false) throw new ApiError(validation.code, 502, validation.message);
     return parsed as FeynmanFeedback;
   }
 

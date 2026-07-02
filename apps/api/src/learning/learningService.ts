@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { LearnRequest, LearnResponse } from "@memora/shared";
+import type { LearnRequest, LearnResponse, ValidationResult } from "@memora/shared";
 import { validateLearningContent, validateSelectedText } from "@memora/shared";
 import type { AiProvider } from "../ai/provider";
 import type { AuthenticatedInvite } from "../auth/authMiddleware";
@@ -20,8 +20,8 @@ export async function generateLearning(
   invite: AuthenticatedInvite,
   request: LearnRequest
 ): Promise<LearnResponse> {
-  const selectionValidation = validateSelectedText(request.selected_text);
-  if (!selectionValidation.ok) {
+  const selectionValidation: ValidationResult = validateSelectedText(request.selected_text);
+  if (selectionValidation.ok === false) {
     throw new ApiError(selectionValidation.code, 400, selectionValidation.message);
   }
 
@@ -50,8 +50,8 @@ export async function generateLearning(
     throw new ApiError("AI_FAILURE", 502, aiFailureMessage(error));
   }
 
-  const contentValidation = validateLearningContent(request.mode, content);
-  if (!contentValidation.ok) {
+  const contentValidation: ValidationResult = validateLearningContent(request.mode, content);
+  if (contentValidation.ok === false) {
     throw new ApiError(contentValidation.code, 502, contentValidation.message);
   }
 
