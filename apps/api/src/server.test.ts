@@ -3,9 +3,13 @@ import type { AiProvider } from "./ai/provider";
 import { MockAiProvider } from "./ai/mockProvider";
 import { createDatabase } from "./db/database";
 import { migrateDatabase, seedInviteCode } from "./db/schema";
-import { buildServer } from "./server";
+import serverHandler, { buildServer } from "./server";
 
 describe("server invite route", () => {
+  it("exports a Vercel-compatible request handler", () => {
+    expect(typeof serverHandler).toBe("function");
+  });
+
   it("returns a lightweight health check for production hosts", async () => {
     const db = createDatabase(":memory:");
     migrateDatabase(db);
@@ -18,6 +22,17 @@ describe("server invite route", () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({
+      status: "ok",
+      service: "memora-api"
+    });
+
+    const apiResponse = await app.inject({
+      method: "GET",
+      url: "/api/health"
+    });
+
+    expect(apiResponse.statusCode).toBe(200);
+    expect(apiResponse.json()).toEqual({
       status: "ok",
       service: "memora-api"
     });

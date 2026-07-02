@@ -1,9 +1,14 @@
 import Fastify from "fastify";
+import type { FastifyInstance } from "fastify";
 import type { FeynmanFeedbackRequest, LearnRequest, LearningMode } from "@memora/shared";
+import { createConfiguredAiProvider } from "./ai/configuredProvider.js";
 import type { AiProvider } from "./ai/provider.js";
 import { MockAiProvider } from "./ai/mockProvider.js";
 import { authenticateRequest } from "./auth/authMiddleware.js";
+import { loadConfig } from "./config.js";
+import { createAppDatabase } from "./db/appDatabase.js";
 import type { AppDatabase } from "./db/database.js";
+import { migrateDatabase, seedMainInviteCode } from "./db/schema.js";
 import { submitFeynmanFeedback } from "./feynman/feynmanService.js";
 import { activateInvite, ApiError } from "./invites/inviteService.js";
 import { generateLearning } from "./learning/learningService.js";
@@ -68,12 +73,16 @@ function feynmanFeedbackRequestFromBody(body: unknown): FeynmanFeedbackRequest {
 export function buildServer({ db, aiProvider = new MockAiProvider() }: ServerDependencies) {
   const app = Fastify({ logger: false });
 
-  app.get("/health", async () => {
+  const healthResponse = async () => {
     return {
       status: "ok",
       service: "memora-api"
     };
-  });
+  };
+
+  app.get("/", healthResponse);
+  app.get("/health", healthResponse);
+  app.get("/api/health", healthResponse);
 
   app.setErrorHandler((error, _request, reply) => {
     if (error instanceof ApiError) {
@@ -115,4 +124,26 @@ export function buildServer({ db, aiProvider = new MockAiProvider() }: ServerDep
   });
 
   return app;
+}
+
+let vercelServerPromise: Promise<FastifyInstance> | undefined;
+
+async function createVercelServer(): Promise<FastifyInstance> {
+  if (!vercelServerPromise) {
+    vercelServerPromise = (async () => {
+      const config = loadConfig();
+      const db = await createAppDatabase(config);
+      await migrateDatabase(db);
+      await seedMainInviteCode(db, config.mainInviteCode);
+      return buildServer({ db, aiProvider: createConfiguredAiProvider(config) });
+    })();
+  }
+
+  return vercelServerPromise;
+}
+
+export default async function handler(request: unknown, response: unknown): Promise<void> {
+  const app = await createVercelServer();
+  await app.ready();
+  app.server.emit("request", request, response);
 }
