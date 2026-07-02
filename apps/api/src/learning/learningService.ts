@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
 import type { LearnRequest, LearnResponse, ValidationResult } from "@memora/shared";
 import { validateLearningContent, validateSelectedText } from "@memora/shared";
-import type { AiProvider } from "../ai/provider";
-import type { AuthenticatedInvite } from "../auth/authMiddleware";
-import type { AppDatabase } from "../db/database";
-import { UNLIMITED_INVITE_CREDITS } from "../db/schema";
-import { ApiError } from "../invites/inviteService";
+import type { AiProvider } from "../ai/provider.js";
+import type { AuthenticatedInvite } from "../auth/authMiddleware.js";
+import type { AppDatabase } from "../db/database.js";
+import { UNLIMITED_INVITE_CREDITS } from "../db/schema.js";
+import { ApiError } from "../invites/inviteService.js";
 
 function aiFailureMessage(error: unknown): string {
   if (error instanceof Error && error.message.trim().length > 0) {

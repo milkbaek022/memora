@@ -1,9 +1,9 @@
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadConfig } from "../config";
-import { createAppDatabase } from "../db/appDatabase";
-import { DEFAULT_INVITE_CREDITS, migrateDatabase, seedInviteCode } from "../db/schema";
+import { loadConfig } from "../config.js";
+import { createAppDatabase } from "../db/appDatabase.js";
+import { DEFAULT_INVITE_CREDITS, migrateDatabase, seedInviteCode } from "../db/schema.js";
 
 export interface SeedInviteResult {
   code: string;

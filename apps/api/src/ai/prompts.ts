@@ -1,4 +1,4 @@
-import type { FeynmanGenerationInput, LearningGenerationInput } from "./provider";
+import type { FeynmanGenerationInput, LearningGenerationInput } from "./provider.js";
 
 export function buildLearningPrompt(input: LearningGenerationInput): string {
   return `

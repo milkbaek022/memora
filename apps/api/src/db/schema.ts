@@ -1,4 +1,4 @@
-import type { AppDatabase, MaybePromise } from "./database";
+import type { AppDatabase, MaybePromise } from "./database.js";
 
 export const DEFAULT_INVITE_CREDITS = 20;
 export const UNLIMITED_INVITE_CREDITS = -1;

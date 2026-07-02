@@ -1,9 +1,9 @@
 import type { FeynmanFeedback, LearningContent, ValidationResult } from "@memora/shared";
 import { validateFeynmanFeedback, validateLearningContent } from "@memora/shared";
-import { ApiError } from "../invites/inviteService";
-import { buildFeynmanPrompt, buildLearningPrompt } from "./prompts";
-import type { AiProvider, FeynmanGenerationInput, LearningGenerationInput } from "./provider";
-import { feedbackSchema, jsonSchemaForMode } from "./structuredSchemas";
+import { ApiError } from "../invites/inviteService.js";
+import { buildFeynmanPrompt, buildLearningPrompt } from "./prompts.js";
+import type { AiProvider, FeynmanGenerationInput, LearningGenerationInput } from "./provider.js";
+import { feedbackSchema, jsonSchemaForMode } from "./structuredSchemas.js";
 
 interface DeepSeekProviderOptions {
   apiKey: string;

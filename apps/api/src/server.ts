@@ -1,12 +1,12 @@
 import Fastify from "fastify";
 import type { FeynmanFeedbackRequest, LearnRequest, LearningMode } from "@memora/shared";
-import type { AiProvider } from "./ai/provider";
-import { MockAiProvider } from "./ai/mockProvider";
-import { authenticateRequest } from "./auth/authMiddleware";
-import type { AppDatabase } from "./db/database";
-import { submitFeynmanFeedback } from "./feynman/feynmanService";
-import { activateInvite, ApiError } from "./invites/inviteService";
-import { generateLearning } from "./learning/learningService";
+import type { AiProvider } from "./ai/provider.js";
+import { MockAiProvider } from "./ai/mockProvider.js";
+import { authenticateRequest } from "./auth/authMiddleware.js";
+import type { AppDatabase } from "./db/database.js";
+import { submitFeynmanFeedback } from "./feynman/feynmanService.js";
+import { activateInvite, ApiError } from "./invites/inviteService.js";
+import { generateLearning } from "./learning/learningService.js";
 
 export interface ServerDependencies {
   db: AppDatabase;

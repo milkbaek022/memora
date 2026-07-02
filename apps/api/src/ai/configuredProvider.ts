@@ -1,8 +1,8 @@
-import type { AppConfig } from "../config";
-import { DeepSeekChatProvider } from "./deepseekProvider";
-import { MockAiProvider } from "./mockProvider";
-import { OpenAiResponsesProvider } from "./openaiProvider";
-import type { AiProvider } from "./provider";
+import type { AppConfig } from "../config.js";
+import { DeepSeekChatProvider } from "./deepseekProvider.js";
+import { MockAiProvider } from "./mockProvider.js";
+import { OpenAiResponsesProvider } from "./openaiProvider.js";
+import type { AiProvider } from "./provider.js";
 
 export function createConfiguredAiProvider(config: AppConfig): AiProvider {
   if (config.aiProvider === "openai") {

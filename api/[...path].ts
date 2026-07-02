@@ -1,4 +1,4 @@
-import { createConfiguredServer } from "../apps/api/src/runtime";
+import { createConfiguredServer } from "../apps/api/dist/runtime.js";
 
 export default async function handler(request: unknown, response: unknown): Promise<void> {
   const app = await createConfiguredServer();

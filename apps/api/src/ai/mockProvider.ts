@@ -1,5 +1,5 @@
 import type { FeynmanFeedback, LearningContent, QuizQuestion } from "@memora/shared";
-import type { AiProvider, FeynmanGenerationInput, LearningGenerationInput } from "./provider";
+import type { AiProvider, FeynmanGenerationInput, LearningGenerationInput } from "./provider.js";
 
 const demandMiningQuiz: QuizQuestion[] = [
   {

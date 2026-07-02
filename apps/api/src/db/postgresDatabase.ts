@@ -5,8 +5,8 @@ import type {
   InviteRecord,
   LearningSessionRecord,
   RecordLearningInput
-} from "./database";
-import { UNLIMITED_INVITE_CREDITS } from "./schema";
+} from "./database.js";
+import { UNLIMITED_INVITE_CREDITS } from "./schema.js";
 
 interface NeonSql {
   (strings: TemplateStringsArray, ...values: unknown[]): Promise<Array<Record<string, unknown>>>;

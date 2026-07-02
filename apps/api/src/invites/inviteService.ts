@@ -1,6 +1,6 @@
 import type { ActivateInviteResponse, ApiErrorCode } from "@memora/shared";
-import type { AppDatabase } from "../db/database";
-import { createAccessToken, hashAccessToken } from "../auth/tokens";
+import type { AppDatabase } from "../db/database.js";
+import { createAccessToken, hashAccessToken } from "../auth/tokens.js";
 
 export class ApiError extends Error {
   constructor(public code: ApiErrorCode, public statusCode: number, message: string) {

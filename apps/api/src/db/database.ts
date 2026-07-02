@@ -1,5 +1,5 @@
 import Database from "better-sqlite3";
-import { UNLIMITED_INVITE_CREDITS } from "./schema";
+import { UNLIMITED_INVITE_CREDITS } from "./schema.js";
 
 export type MaybePromise<T> = T | Promise<T>;
 

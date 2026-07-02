@@ -1,5 +1,5 @@
-import { loadConfig } from "./config";
-import { createConfiguredServer } from "./runtime";
+import { loadConfig } from "./config.js";
+import { createConfiguredServer } from "./runtime.js";
 
 const config = loadConfig();
 const app = await createConfiguredServer();

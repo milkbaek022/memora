@@ -6,10 +6,10 @@ import type {
   ValidationResult
 } from "@memora/shared";
 import { validateFeynmanFeedback, validateLearningContent } from "@memora/shared";
-import type { AiProvider } from "../ai/provider";
-import type { AuthenticatedInvite } from "../auth/authMiddleware";
-import type { AppDatabase } from "../db/database";
-import { ApiError } from "../invites/inviteService";
+import type { AiProvider } from "../ai/provider.js";
+import type { AuthenticatedInvite } from "../auth/authMiddleware.js";
+import type { AppDatabase } from "../db/database.js";
+import { ApiError } from "../invites/inviteService.js";
 
 const MAX_FEYNMAN_ROUNDS = 3;
 

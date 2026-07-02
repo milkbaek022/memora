@@ -1,7 +1,7 @@
 import type { FastifyRequest } from "fastify";
-import type { AppDatabase } from "../db/database";
-import { ApiError } from "../invites/inviteService";
-import { hashAccessToken } from "./tokens";
+import type { AppDatabase } from "../db/database.js";
+import { ApiError } from "../invites/inviteService.js";
+import { hashAccessToken } from "./tokens.js";
 
 export interface AuthenticatedInvite {
   id: number;

@@ -1,9 +1,9 @@
 import type { FastifyInstance } from "fastify";
-import { createConfiguredAiProvider } from "./ai/configuredProvider";
-import { loadConfig } from "./config";
-import { createAppDatabase } from "./db/appDatabase";
-import { migrateDatabase, seedMainInviteCode } from "./db/schema";
-import { buildServer } from "./server";
+import { createConfiguredAiProvider } from "./ai/configuredProvider.js";
+import { loadConfig } from "./config.js";
+import { createAppDatabase } from "./db/appDatabase.js";
+import { migrateDatabase, seedMainInviteCode } from "./db/schema.js";
+import { buildServer } from "./server.js";
 
 let serverPromise: Promise<FastifyInstance> | undefined;
 
