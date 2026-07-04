@@ -38,6 +38,22 @@ describe("server invite route", () => {
     });
   });
 
+  it("serves the public privacy policy page for Chrome Web Store review", async () => {
+    const db = createDatabase(":memory:");
+    migrateDatabase(db);
+    const app = buildServer({ db });
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/privacy.html"
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers["content-type"]).toContain("text/html");
+    expect(response.body).toContain("Memora 隐私政策");
+    expect(response.body).toContain("网页文字");
+  });
+
   it("activates invite code through HTTP", async () => {
     const db = createDatabase(":memory:");
     migrateDatabase(db);
